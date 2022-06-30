@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import TOC from './components/TOC';
 import Subject from './components/Subject';
 import Content from './components/Content';
+import Control from './components/Control';
 
 class App extends Component{  //main 컴포넌트
   constructor(props){  //props는 무조건 상위->하위
@@ -56,6 +57,11 @@ class App extends Component{  //main 컴포넌트
             });
           }.bind(this)}
         ></TOC>
+        <Control
+          onChangeMode={function(_mode){
+            this.setState({mode:_mode});
+          }.bind(this)}
+        ></Control>
         <Content title={_title} desc={_desc}></Content>
       </div>
       // <div className="App">
