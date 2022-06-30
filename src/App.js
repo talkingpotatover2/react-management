@@ -24,41 +24,80 @@ class App extends Component{  //main 컴포넌트
       ]
     }
   }
-  render(){
-    console.log('App render');
+  
+  //getReadContent start
+  getReadContent(){  //update랑 delete에서 자주 사용해서 따로 뺌
+    let i = 0;
+    while(i < this.state.contents.length){
+      let data = this.state.contents[i];
+      if(data.id === this.state.selected_content_id){
+        return data;
+      }
+      i++;
+    }
+  }
+  //getReadContent end
+
+  //getContent start
+  getContent(){
     let _title, _desc, _article = null;
     if(this.state.mode === 'welcome'){
       _title = this.state.welcome.title;
       _desc = this.state.welcome.desc;
       _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
     }else if(this.state.mode === 'read'){
-      let i = 0;
-      while(i < this.state.contents.length){
-        let data = this.state.contents[i];
-        if(data.id === this.state.selected_content_id){
-          _title = data.title;
-          _desc = data.desc;
-          break;
-        }
-        i++;
-      }
-      _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
+      let _content = this.getReadContent();
+      _article = <ReadContent title={_content.title} desc={_content.desc}></ReadContent>;
     }else if(this.state.mode === 'create'){
       _article = <CreateContent onSubmit={function(_title, _desc){
         this.max_content_id = this.max_content_id + 1;
         // this.state.contents.push(
         //   {id:this.max_content_id, title:_title, desc:_desc}
         // )
-        let _contents = this.state.contents.concat(
-          {id:this.max_content_id, title:_title, desc:_desc}
-        )
+
+        // let _contents = this.state.contents.concat(
+        //   {id:this.max_content_id, title:_title, desc:_desc}
+        // )
+
+        let _contents = Array.from(this.state.contents);
+        _contents.push({id:this.max_content_id, title:_title, desc:_desc});
 
         this.setState({
           // contents: this.state.contents
-          contents: _contents
+          mode: 'read',
+          contents: _contents,
+          selected_content_id: this.max_content_id
         })
       }.bind(this)}></CreateContent>
+    }else if(this.state.mode === 'update'){
+      let _content = this.getReadContent();
+      _article = <UpdateContent 
+                    data={_content} 
+                    onSubmit={function(_id, _title, _desc){
+                      let _contents = Array.from(this.state.contents);  //유사배열
+                      let i = 0;
+                      while(i < _contents.length){
+                        if(_contents[i].id == _id){
+                          _contents[i] = {id:_id, title:_title, desc:_desc};
+                          break;
+                        }
+                        i++;
+                      }
+                      this.setState({
+                        contents:_contents,
+                        mode:'read'
+                      })
+                    }.bind(this)}
+                 ></UpdateContent>
     }
+
+    return _article;
+  }
+  //getContent end
+
+  render(){
+    console.log('App render');
+    
     return (
       <div>
         <Subject 
@@ -82,7 +121,7 @@ class App extends Component{  //main 컴포넌트
             this.setState({mode:_mode});
           }.bind(this)}
         ></Control>
-        {_article}
+        {this.getContent()}
       </div>
       // <div className="App">
       //   <header className="App-header">
